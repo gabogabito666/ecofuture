@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoFuturo Futurista</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto Mono', monospace;}
+body{background:#0f2027;color:#e0f7fa;overflow-x:hidden;position:relative;}
+#particle-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 40px;background:rgba(0,0,0,0.3);border-bottom:1px solid #00ff99;box-shadow:0 0 20px #00ff99;position:sticky;top:0;z-index:100;}
+header h1{font-family:'Orbitron', sans-serif;color:#00ff99;text-shadow:0 0 10px #00ff99;}
+nav a{margin-left:20px;font-weight:bold;transition:0.3s;}
+nav a:hover{color:#66ff99;text-shadow:0 0 10px #66ff99;}
+.hero{height:80vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:url('https://images.unsplash.com/photo-1601933472908-0f7683f1e87f?auto=format&fit=crop&w=1950&q=80') center/cover no-repeat;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background: rgba(0,0,0,0.6);}
+.hero-content{position:relative;z-index:2;animation:fadeUp 1.5s ease-out;}
+.hero h2{font-family:'Orbitron', sans-serif;font-size:3rem;color:#00ff99;text-shadow:0 0 20px #00ff99;margin-bottom:20px;transition:0.3s;}
+.hero h2:hover{text-shadow:0 0 40px #66ff99;}
+.hero button{padding:15px 30px;font-size:1.2rem;border:none;background:#00ff99;color:#0f2027;font-weight:bold;cursor:pointer;border-radius:10px;box-shadow:0 0 15px #00ff99;transition:0.3s;}
+.hero button:hover{transform:scale(1.1);box-shadow:0 0 30px #66ff99;}
+@keyframes fadeUp{0%{opacity:0;transform:translateY(30px);}100%{opacity:1;transform:translateY(0);}}
+section{padding:60px 10%;}
+.info{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;}
+.card{background: rgba(0,0,0,0.4);padding:20px;border-radius:15px;box-shadow:0 0 20px #00ff99;transition:0.3s;overflow:hidden;cursor:pointer;}
+.card:hover{transform: translateY(-10px) scale(1.02);box-shadow:0 0 30px #66ff99;}
+.card h3{margin-bottom:15px;font-family:'Orbitron', sans-serif;color:#00ff99;text-shadow:0 0 10px #00ff99;}
+.card p{line-height:1.6;max-height:200px;overflow:hidden;transition:max-height 0.5s ease;}
+.card.expanded p{max-height:1000px;}
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:40px;}
+.game-card{background: rgba(0,0,0,0.5);border-radius:15px;box-shadow:0 0 20px #00ff99;padding:20px;transition:0.3s;text-align:center;}
+.game-card:hover{transform: translateY(-10px);box-shadow:0 0 30px #66ff99;}
+.game-card canvas{border:2px solid #00ff99;border-radius:10px;margin-bottom:15px;background:#1b2a34;}
+.game-card h3{font-family:'Orbitron', sans-serif;margin-bottom:10px;color:#00ff99;}
+#snake-score,#scoreArcade{font-size:1.2rem;margin-bottom:10px;}
+.quizzes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.quiz-card{background: rgba(0,0,0,0.5);border-radius:15px;box-shadow:0 0 20px #00ff99;padding:20px;transition:0.3s;text-align:center;}
+.quiz-card:hover{transform: translateY(-10px);box-shadow:0 0 30px #66ff99;}
+.quiz-card h3{font-family:'Orbitron', sans-serif;margin-bottom:15px;color:#00ff99;}
+.quiz-card button{margin-top:10px;padding:10px 20px;background:#00ff99;color:#0f2027;border:none;border-radius:10px;cursor:pointer;transition:0.3s;}
+.quiz-card button:hover{box-shadow:0 0 20px #66ff99;}
+.floating-icon{position:absolute;font-size:1.5rem;opacity:0.6;animation:floatUp 6s linear infinite;}
+@keyframes floatUp{0%{transform:translateY(100vh);}100%{transform:translateY(-10vh);}}
+footer{background: rgba(0,0,0,0.4);text-align:center;padding:30px;border-top:1px solid #00ff99;box-shadow: 0 -2px 15px #00ff99 inset;}
+</style>
+</head>
+<body>
+
+<canvas id="particle-canvas"></canvas>
+
+<header>
+  <h1>♻️ EcoFuturo</h1>
+  <nav>
+    <a href="#info">Información</a>
+    <a href="#games">Juegos</a>
+    <a href="#quizzes">Quizzes</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-content">
+    <h2>Recicla hoy para un futuro más brillante</h2>
+    <button onclick="document.getElementById('games').scrollIntoView({behavior:'smooth'})">Juega y aprende</button>
+  </div>
+</section>
+
+<section class="info" id="info">
+  <div class="card"><h3>Qué es el reciclaje</h3><p>El reciclaje es el proceso de recolectar y procesar materiales que de otro modo serían desechados para convertirlos en nuevos productos, reduciendo el consumo de recursos naturales y la contaminación ambiental.</p></div>
+  <div class="card"><h3>Historia del reciclaje</h3><p>El reciclaje moderno comenzó en el siglo XX con la industrialización. Desde entonces, se han desarrollado métodos y tecnologías para procesar papel, vidrio, plástico y metales, promoviendo la sostenibilidad global.</p></div>
+  <div class="card"><h3>Impacto ambiental</h3><p>Separar y reciclar correctamente reduce la contaminación del agua, aire y suelo, disminuye el consumo de energía y contribuye a un planeta más saludable. Cada botella o lata reciclada cuenta.</p></div>
+  <div class="card"><h3>Tips prácticos para reciclar</h3><p>Separa correctamente tus residuos, lava envases antes de desecharlos, reutiliza materiales, participa en programas locales de reciclaje y promueve hábitos sostenibles en tu comunidad.</p></div>
+  <div class="card"><h3>Innovaciones futuristas</h3><p>Robots que separan residuos, reciclaje inteligente con sensores, economía circular y nuevas tecnologías de conversión de residuos en materiales útiles son el futuro del reciclaje.</p></div>
+</section>
+
+<section class="games" id="games">
+  <div class="game-card">
+    <h3>Snake Reciclaje</h3>
+    <div id="snake-score">Puntuación: 0</div>
+    <canvas id="snakeCanvas" width="400" height="400"></canvas>
+    <p>Haz clic  para iniciar. Mueve la serpiente con las flechas o WASD, come reciclables 🥤📄🍎 y evita la basura 🗑️.</p>
+  </div>
+  <div class="game-card">
+    <h3>Clasificación Arcade ♻️</h3>
+    <div id="scoreArcade">Puntuación: 0</div>
+    <canvas id="sortingCanvas" width="400" height="400"></canvas>
+    <p>Haz clic  para iniciar. Mueve la caja 🟫 con el mouse y atrapa los objetos reciclables.</p>
+  </div>
+</section>
+
+<section class="quizzes" id="quizzes">
+  <!-- QUIZZES EXISTENTES -->
+  <div class="quiz-card">
+    <h3>Quiz sobre reciclaje</h3>
+    <p>¿Cuál de estos materiales NO es reciclable?</p>
+    <button onclick="feedback(this,false)">Papel</button>
+    <button onclick="feedback(this,true)">Bolsa plástica contaminada</button>
+    <button onclick="feedback(this,false)">Vidrio</button>
+  </div>
+  <div class="quiz-card">
+    <h3>Quiz sobre reciclaje</h3>
+    <p>¿Qué beneficio aporta el reciclaje?</p>
+    <button onclick="feedback(this,true)">Reducir contaminación</button>
+    <button onclick="feedback(this,false)">Generar más basura</button>
+    <button onclick="feedback(this,false)">Consumir más energía</button>
+  </div>
+
+  <!-- 7 QUIZZES ADICIONALES -->
+  <div class="quiz-card">
+    <h3>Quiz sobre reciclaje</h3>
+    <p>¿Qué material se puede reciclar infinitamente sin perder calidad?</p>
+    <button onclick="feedback(this,true)">Vidrio</button>
+    <button onclick="feedback(this,false)">Plástico</button>
+    <button onclick="feedback(this,false)">Cartón</button>
+  </div>
+  <div class="quiz-card">
+    <h3>Quiz sobre reciclaje</h3>
+    <p>¿Cuál de estas acciones ayuda a reducir la basura electrónica?</p>
+    <button onclick="feedback(this,false)">Tirar a la basura</button>
+    <button onclick="feedback(this,true)">Donar o reciclar correctamente</button>
+    <button onclick="feedback(this,false)">Ignorar aparatos viejos</button>
+  </div>
+  <div class="quiz-card">
+    <h3>Quiz sobre reciclaje</h3>
+    <p>¿Qué tipo de residuo es compostable?</p>
+    <button onclick="feedback(this,true)">Restos de frutas y verduras</button>
+    <button onclick="feedback(this,false)">Plástico</button>
+    <button onclick="feedback(this,false)">Vidrio</button>
+  </div>
+  <div class="quiz-card">
+    <h3>Quiz sobre reciclaje</h3>
+    <p>¿Cuál es la mejor forma de reciclar plástico?</p>
+    <button onclick="feedback(this,true)">Lavar y separar según tipo</button>
+    <button onclick="feedback(this,false)">Aplastarlo y tirarlo junto con residuos normales</button>
+    <button onclick="feedback(this,false)">Quemarlo</button>
+  </div>
+  <div class="quiz-card">
+    <h3>Quiz sobre reciclaje</h3>
+    <p>¿Por qué es importante separar los residuos?</p>
+    <button onclick="feedback(this,true)">Facilita el reciclaje y reduce contaminación</button>
+    <button onclick="feedback(this,false)">Porque ocupa menos espacio</button>
+    <button onclick="feedback(this,false)">No es importante realmente</button>
+  </div>
+  <div class="quiz-card">
+    <h3>Quiz sobre reciclaje</h3>
+    <p>¿Qué tipo de papel NO se debe reciclar?</p>
+    <button onclick="feedback(this,false)">Papel de periódico</button>
+    <button onclick="feedback(this,true)">Papel sucio o con restos de comida</button>
+    <button onclick="feedback(this,false)">Cartón</button>
+  </div>
+  <div class="quiz-card">
+    <h3>Quiz sobre reciclaje</h3>
+    <p>¿Qué es la economía circular?</p>
+    <button onclick="feedback(this,true)">Un sistema donde los materiales se reutilizan continuamente</button>
+    <button onclick="feedback(this,false)">Un sistema donde todo se tira y se reemplaza</button>
+    <button onclick="feedback(this,false)">Un tipo de reciclaje de vidrio</button>
+  </div>
+</section>
+
+<footer>
+  <p>EcoFuturo © 2025 | Aprende a reciclar y cuida el planeta</p>
+</footer>
+
+<!-- ==== Scripts Mejorados ==== -->
+<script>
+// ==== Snake Mejorado ====
+const snakeCanvas=document.getElementById("snakeCanvas");
+const ctx=snakeCanvas.getContext("2d");
+const box=20;
+let snake=[{x:9*box,y:10*box}],score=0,d=null,food=null,trashItems=[];
+let snakeInterval=null; 
+let trashInterval=null;
+
+document.addEventListener("keydown",direction);
+function direction(e){
+  if(e.key==="ArrowLeft"&&d!=="RIGHT")d="LEFT";
+  else if(e.key==="ArrowUp"&&d!=="DOWN")d="UP";
+  else if(e.key==="ArrowRight"&&d!=="LEFT")d="RIGHT";
+  else if(e.key==="ArrowDown"&&d!=="UP")d="DOWN";
+  else if(e.key==="w"||e.key==="W"){if(d!=="DOWN")d="UP";}
+  else if(e.key==="a"||e.key==="A"){if(d!=="RIGHT")d="LEFT";}
+  else if(e.key==="s"||e.key==="S"){if(d!=="UP")d="DOWN";}
+  else if(e.key==="d"||e.key==="D"){if(d!=="LEFT")d="RIGHT";}
+}
+
+function spawnFood(){
+  const types=[{type:"plastic",emoji:"🥤",points:1},{type:"paper",emoji:"📄",points:1},{type:"organic",emoji:"🍎",points:1}];
+  let obj=types[Math.floor(Math.random()*types.length)],x,y;
+  do{x=Math.floor(Math.random()*Math.floor(snakeCanvas.width/box))*box;
+     y=Math.floor(Math.random()*Math.floor(snakeCanvas.height/box))*box;} 
+  while(snake.some(s=>s.x===x&&s.y===y));
+  food={x,y,type:obj.type,emoji:obj.emoji,points:obj.points};
+}
+
+function spawnTrash(){
+  const obj={type:"trash",emoji:"🗑️",points:-1};
+  let x,y;
+  do{x=Math.floor(Math.random()*Math.floor(snakeCanvas.width/box))*box;
+     y=Math.floor(Math.random()*Math.floor(snakeCanvas.height/box))*box;} 
+  while(snake.some(s=>s.x===x&&s.y===y)||(food && food.x===x && food.y===y));
+  trashItems.push({x,y,type:obj.type,emoji:obj.emoji,points:obj.points});
+}
+
+snakeCanvas.addEventListener("click", startSnake);
+function startSnake(){
+  if(!snakeInterval){
+    spawnFood();
+    snakeInterval=setInterval(drawSnake,100);
+    trashInterval=setInterval(spawnTrash,3000);
+  }
+}
+
+function drawSnake(){
+  ctx.fillStyle="#1b2a34";
+  ctx.fillRect(0,0,snakeCanvas.width,snakeCanvas.height);
+  ctx.font=box+"px Arial";
+  for(let i=0;i<snake.length;i++){ctx.fillText(i===0?"🐍":"🟩",snake[i].x,snake[i].y+box);}
+  if(food)ctx.fillText(food.emoji,food.x,food.y+box);
+  trashItems.forEach(t=>ctx.fillText(t.emoji,t.x,t.y+box));
+  if(d===null)return;
+
+  let snakeX=snake[0].x,snakeY=snake[0].y;
+  if(d==="LEFT")snakeX-=box;if(d==="UP")snakeY-=box;if(d==="RIGHT")snakeX+=box;if(d==="DOWN")snakeY+=box;
+
+  if(snakeX<0||snakeX>=snakeCanvas.width||snakeY<0||snakeY>=snakeCanvas.height||collision(snakeX,snakeY,snake)){
+    alert("Juego terminado! Puntuación: "+score);
+    resetSnake();
+    return;
+  }
+
+  if(food && snakeX===food.x&&snakeY===food.y){score+=food.points;snake.unshift({x:snakeX,y:snakeY});spawnFood();}
+  else{snake.pop();snake.unshift({x:snakeX,y:snakeY});}
+
+  trashItems.forEach((t,i)=>{if(snakeX===t.x&&snakeY===t.y){score+=t.points;if(score<0)score=0;if(snake.length>1)snake.pop();trashItems.splice(i,1);}});
+  document.getElementById("snake-score").textContent="Puntuación: "+score;
+}
+
+function collision(x,y,array){return array.some(seg=>seg.x===x&&seg.y===y);}
+function resetSnake(){snake=[{x:9*box,y:10*box}];score=0;d=null;food=null;trashItems=[];document.getElementById("snake-score").textContent="Puntuación: 0";clearInterval(snakeInterval);snakeInterval=null;clearInterval(trashInterval);trashInterval=null;}
+
+// ==== Arcade Mejorado ====
+const canvas2=document.getElementById("sortingCanvas");
+const ctx2=canvas2.getContext("2d");
+const box2=40; 
+let scoreArcade=0;
+const bin={ emoji:"🟫", x:180, width:80, height:40 };
+let fallingObjects=[]; 
+let speed=1; 
+let arcadeRunning=false;
+let arcadeInterval=null;
+
+canvas2.addEventListener("mousemove", e => {
+  const rect=canvas2.getBoundingClientRect();
+  const mouseX=e.clientX-rect.left;
+  bin.x=Math.min(Math.max(0,mouseX-bin.width/2),canvas2.width-bin.width);
+});
+
+canvas2.addEventListener("click", startArcade);
+
+function startArcade(){
+  if(!arcadeRunning){
+    arcadeRunning=true;
+    arcadeInterval=setInterval(spawnFalling,1500);
+    drawArcade();
+  }
+}
+
+function spawnFalling(){
+  const types=[{ type:"plastic", emoji:"🥤" }, { type:"paper", emoji:"📄" }, { type:"organic", emoji:"🍎" }, { type:"trash", emoji:"🗑️" }];
+  const obj=types[Math.floor(Math.random()*types.length)];
+  obj.x=Math.floor(Math.random()*(canvas2.width-box2));
+  obj.y=-box2;
+  obj.points=obj.type==="trash"?-1:1;
+  fallingObjects.push(obj);
+}
+
+function drawArcade(){
+  ctx2.fillStyle="#1b2a34";ctx2.fillRect(0,0,canvas2.width,canvas2.height);
+  ctx2.fillText(bin.emoji,bin.x,canvas2.height-10);
+
+  fallingObjects.forEach((o,i)=>{
+    ctx2.fillText(o.emoji,o.x,o.y);
+    o.y+=speed;
+    if(o.y+box2>=canvas2.height && o.x+box2>=bin.x && o.x<=bin.x+bin.width){
+      scoreArcade+=o.points;
+      flashBin(o.points>0);
+      speed=1+scoreArcade/5;if(scoreArcade<0)scoreArcade=0;
+      fallingObjects.splice(i,1);
+    } else if(o.y>canvas2.height) fallingObjects.splice(i,1);
+  });
+
+  ctx2.font="20px Arial";
+  document.getElementById("scoreArcade").textContent="Puntuación: "+scoreArcade;
+  requestAnimationFrame(drawArcade);
+}
+
+function flashBin(correct){
+  ctx2.fillStyle=correct?"#66ff99":"#ff4d4d";
+  ctx2.fillRect(bin.x,canvas2.height-40,bin.width,40);
+  setTimeout(()=>{},200);
+}
+
+// ==== Quizzes Mejorados ====
+function feedback(btn,isCorrect){
+  if(isCorrect){btn.style.background="#66ff99";btn.style.color="#000";showMessage("¡Correcto! 🎉");}
+  else{btn.style.background="#ff4d4d";btn.style.color="#000";showMessage("Incorrecto ❌");}
+  Array.from(btn.parentNode.querySelectorAll("button")).forEach(b=>b.disabled=true);
+  setTimeout(()=>{btn.style.background="#00ff99";btn.style.color="#0f2027";Array.from(btn.parentNode.querySelectorAll("button")).forEach(b=>b.disabled=false);},1000);
+}
+
+function showMessage(msg){
+  const messageDiv=document.createElement("div");
+  messageDiv.textContent=msg;
+  messageDiv.style.position="absolute";
+  messageDiv.style.top="50%";
+  messageDiv.style.left="50%";
+  messageDiv.style.transform="translate(-50%,-50%)";
+  messageDiv.style.background="rgba(0,0,0,0.7)";
+  messageDiv.style.color="#00ff99";
+  messageDiv.style.padding="15px 30px";
+  messageDiv.style.borderRadius="15px";
+  messageDiv.style.fontFamily="'Orbitron', sans-serif";
+  messageDiv.style.fontSize="1.5rem";
+  messageDiv.style.zIndex=200;
+  document.body.appendChild(messageDiv);
+  setTimeout(()=>document.body.removeChild(messageDiv),1000);
+}
+
+// ==== Partículas Futuristas Mejoradas ====
+const particleCanvas=document.getElementById("particle-canvas");
+const pctx=particleCanvas.getContext("2d");
+function resizeParticles(){particleCanvas.width=window.innerWidth; particleCanvas.height=window.innerHeight;}
+window.addEventListener("resize",resizeParticles);
+resizeParticles();
+
+let particles=[];
+function initParticles(){
+  const num=Math.floor(window.innerWidth/10);
+  particles=[];
+  for(let i=0;i<num;i++){particles.push({x:Math.random()*particleCanvas.width,y:Math.random()*particleCanvas.height,r:Math.random()*2+1,speed:Math.random()*1+0.5});}
+}
+initParticles();
+
+particleCanvas.addEventListener("mousemove", e=>{
+  particles.forEach(p=>{
+    const dx=p.x-e.clientX;
+    const dy=p.y-e.clientY;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<50){p.x+=dx*0.01;p.y+=dy*0.01;}
+  });
+});
+
+function animateParticles(){
+  pctx.clearRect(0,0,particleCanvas.width,particleCanvas.height);
+  particles.forEach(p=>{p.y-=p.speed;if(p.y<0)p.y=particleCanvas.height;pctx.fillStyle="#00ff99";pctx.beginPath();pctx.arc(p.x,p.y,p.r,0,Math.PI*2);pctx.fill();});
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+</script>
+
+</body>
+</html>
